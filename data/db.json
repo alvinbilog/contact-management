@@ -1,0 +1,74 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "address": "123 Main Street, City, State",
+      "email": "johndoe@example.com",
+      "contactNumber": "123-456-7890"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "address": "456 Elm Avenue, City, State",
+      "email": "janesmith@example.com",
+      "contactNumber": "987-654-3210"
+    },
+    {
+      "id": 3,
+      "name": "David Johnson",
+      "address": "789 Oak Lane, City, State",
+      "email": "davidjohnson@example.com",
+      "contactNumber": "555-123-4567"
+    },
+    {
+      "id": 4,
+      "name": "Sarah Williams",
+      "address": "321 Pine Road, City, State",
+      "email": "sarahwilliams@example.com",
+      "contactNumber": "444-555-6666"
+    },
+    {
+      "id": 5,
+      "name": "Michael Brown",
+      "address": "654 Cedar Street, City, State",
+      "email": "michaelbrown@example.com",
+      "contactNumber": "222-333-4444"
+    },
+    {
+      "id": 6,
+      "name": "Emily Davis",
+      "address": "987 Maple Avenue, City, State",
+      "email": "emilydavis@example.com",
+      "contactNumber": "777-888-9999"
+    },
+    {
+      "id": 7,
+      "name": "Daniel Wilson",
+      "address": "741 Elm Lane, City, State",
+      "email": "danielwilson@example.com",
+      "contactNumber": "666-777-8888"
+    },
+    {
+      "id": 8,
+      "name": "Olivia Martinez",
+      "address": "852 Oak Road, City, State",
+      "email": "oliviamartinez@example.com",
+      "contactNumber": "111-222-3333"
+    },
+    {
+      "id": 9,
+      "name": "James Thompson",
+      "address": "963 Pine Street, City, State",
+      "email": "jamesthompson@example.com",
+      "contactNumber": "999-888-7777"
+    },
+    {
+      "id": 10,
+      "name": "Sophia Garcia",
+      "address": "159 Cedar Avenue, City, State",
+      "email": "sophiagarcia@example.com",
+      "contactNumber": "666-555-4444"
+    }
+  ]
+}
