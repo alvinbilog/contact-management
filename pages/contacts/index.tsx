@@ -4,8 +4,9 @@ import {
   useQuery,
   // useQueryClient,
 } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { deleteContact } from '../../api';
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -32,9 +33,14 @@ const Contacts = () => {
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
+  // useEffect(() => {
+  //   const user = async (): Promise<void> => {
+  //     await getUserAPI;
+  //   };
+  // }, []);
 
   const fetchContacts = async () => {
-    const res = await axios.get('http://localhost:3500/contacts');
+    const res = await axios.get('http://localhost:8000/contacts/get-all');
     return res.data;
   };
   // test email validation
@@ -42,6 +48,7 @@ const Contacts = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
   const addContacts = async (): Promise<contactInterface | undefined> => {
     try {
       //required fields validation
@@ -52,8 +59,8 @@ const Contacts = () => {
       if (!isValidEmail(email)) {
         throw new Error('Please enter a valid email address.');
       }
-      const res = await axios.post('http://localhost:3500/contacts', {
-        id: Math.floor(Math.random() * 100) + 1,
+      const res = await axios.post('http://localhost:8000/contacts/create', {
+        id: Date.now(),
         name,
         address,
         email,
@@ -65,19 +72,16 @@ const Contacts = () => {
       console.log(err.message);
     }
   };
-  const deleteContact = async (id: number) => {
-    const res = await axios.delete(`http://localhost:3500/contacts/${id}`);
-    return res.data;
-  };
 
   const {
     isLoading,
     isError,
     error,
     data: contacts,
-  } = useQuery<boolean, any, any, unknown[]>({
+  } = useQuery<boolean, any, any, any>({
     queryKey: ['contacts'],
     queryFn: () => fetchContacts(),
+    select: (data: any) => data.sort((a: any, b: any) => b.id - a.id),
   });
 
   return (
