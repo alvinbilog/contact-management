@@ -1,14 +1,18 @@
 import {
   QueryClient,
   QueryClientProvider,
+  useMutation,
   useQuery,
   // useQueryClient,
 } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { deleteContact } from '../../api';
+import { useState } from 'react';
+import { addContacts, deleteContact, fetchContacts } from '../../api';
+import React from 'react';
+import { ContactInterface } from '../../api';
 
 const queryClient = new QueryClient();
+const queryKeys = { CONTACTS: 'contacts' };
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -20,68 +24,64 @@ export default App;
 
 // interface
 
-interface contactInterface {
-  id: number;
-  name: string;
-  address?: string;
-  email: string;
-  contactNumber?: number;
-}
+// interface ContactInterface {
+//   _id: any;
+//   name: string;
+//   address?: string;
+//   email: string;
+//   contactNumber?: string;
+// }
 
 const Contacts = () => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
-  // useEffect(() => {
-  //   const user = async (): Promise<void> => {
-  //     await getUserAPI;
-  //   };
-  // }, []);
 
-  const fetchContacts = async () => {
-    const res = await axios.get('http://localhost:8000/contacts/get-all');
-    return res.data;
-  };
-  // test email validation
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  //create
+  const addContactMutation = useMutation({
+    mutationFn: (contactData: {
+      name: string;
+      address: string;
+      email: string;
+      number: string;
+    }) =>
+      addContacts(
+        contactData.name,
+        contactData.address,
+        contactData.email,
+        contactData.number
+      ),
 
-  const addContacts = async (): Promise<contactInterface | undefined> => {
-    try {
-      //required fields validation
-      if (!name || !email) {
-        throw new Error('Please fill in the required fields');
-      }
-      // email validation
-      if (!isValidEmail(email)) {
-        throw new Error('Please enter a valid email address.');
-      }
-      const res = await axios.post('http://localhost:8000/contacts/create', {
-        id: Date.now(),
-        name,
-        address,
-        email,
-        number,
-      });
-      const newContacts = await res.data;
-      return newContacts;
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.CONTACTS] });
+    },
+    onSettled: (data, error, variables, context) => {
+      // I will fire second!
+      setName('');
+      setAddress('');
+      setEmail('');
+      setNumber('');
+    },
+  });
+
+  //delete
+  const deleteContactMutation = useMutation({
+    mutationFn: (id: string) => deleteContact(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.CONTACTS] });
+    },
+  });
 
   const {
     isLoading,
     isError,
     error,
     data: contacts,
-  } = useQuery<boolean, any, any, any>({
-    queryKey: ['contacts'],
-    queryFn: () => fetchContacts(),
-    select: (data: any) => data.sort((a: any, b: any) => b.id - a.id),
+    // } = useQuery<boolean, any, any, any>({
+  } = useQuery<ContactInterface[], Error>({
+    queryKey: [queryKeys.CONTACTS],
+    queryFn: fetchContacts,
   });
 
   return (
@@ -90,18 +90,38 @@ const Contacts = () => {
 
       <form action="">
         <label htmlFor="name">Name:</label>
-        <input type="text" required onChange={(e) => setName(e.target.value)} />
+        <input
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <label htmlFor="add">Address:</label>
-        <input type="text" onChange={(e) => setAddress(e.target.value)} />
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
         <label htmlFor="email">Email:</label>
         <input
           type="email"
           required
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <label htmlFor="num">Number:</label>
-        <input type="text" onChange={(e) => setNumber(e.target.value)} />
-        <button type="submit" onClick={() => addContacts()}>
+        <input
+          type="text"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+        />
+        <button
+          type="submit"
+          onClick={(e: any) => {
+            e.preventDefault();
+            addContactMutation.mutate({ name, address, email, number });
+          }}
+        >
           Submit
         </button>
       </form>
@@ -117,13 +137,16 @@ const Contacts = () => {
           <span>Email</span>&nbsp;&nbsp;&nbsp;
           <span>Number</span>&nbsp;&nbsp;&nbsp;
           {contacts?.map((contact: any) => (
-            <div key={contact.id}>
+            // {contacts?.map((contact: ContactInterface[]) => (
+            <div key={contact._id}>
               <span>{contact.name}</span>
               <span>{contact.address}</span>
               <span>{contact.email}</span>
               <span>{contact.contactNumber}</span>
               <button>Edit</button>
-              <button onClick={() => deleteContact(contact.id)}>Delete</button>
+              <button onClick={() => deleteContactMutation.mutate(contact._id)}>
+                Delete
+              </button>
             </div>
           ))}
         </div>

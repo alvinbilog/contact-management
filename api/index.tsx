@@ -1,22 +1,17 @@
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { type UserInterface, type ServerResponse } from '../types';
-
-export interface contactInterface {
-  id: number;
+export interface ContactInterface {
+  _id: number;
   name: string;
   address?: string | undefined;
   email: string;
   number?: string;
 }
 
-export const fetchContacts = async (): Promise<
-  ServerResponse<UserInterface[]>
-> => {
-  const res = await axios.get<ServerResponse<UserInterface[]>>(
-    'http://localhost:8000/user'
-  );
-  return res.data;
+export const fetchContacts = async (): Promise<ContactInterface[]> => {
+  const res = await axios.get('http://localhost:8000/contacts/get-all');
+  return res.data.data;
 };
 // test email validation
 const isValidEmail = (email: string): boolean => {
@@ -29,7 +24,7 @@ export const addContacts = async (
   address: string,
   email: string,
   number: string
-): Promise<contactInterface | undefined> => {
+): Promise<ContactInterface | undefined> => {
   try {
     //required fields validation
     if (!name || !email) {
@@ -40,7 +35,7 @@ export const addContacts = async (
       throw new Error('Please enter a valid email address.');
     }
 
-    const res = await axios.post('http://localhost:8000/contacts', {
+    const res = await axios.post('http://localhost:8000/contacts/create', {
       id: new Date(),
       name,
       address,
@@ -55,7 +50,15 @@ export const addContacts = async (
   }
 };
 
-export const deleteContact = async (id: number) => {
-  const res = await axios.delete(`http://localhost:8000/contacts/${id}`);
-  return res.data;
+export const deleteContact = async (id: string) => {
+  try {
+    const res = await axios.delete(
+      `http://localhost:8000/contacts/delete/${id}`
+    );
+
+    // queryClient.invalidateQueries({ queryKey: ['contacts'] });
+    return res.data;
+  } catch (e: any) {
+    console.log(e.message);
+  }
 };
